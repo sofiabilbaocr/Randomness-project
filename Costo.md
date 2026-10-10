@@ -28,7 +28,6 @@ Arquitectura del sistema
 
 
 
-
 Volumen de datos
 
 1. Números por año: 31,536,000
