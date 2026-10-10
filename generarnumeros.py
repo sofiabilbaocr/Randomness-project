@@ -5,20 +5,32 @@ import hashlib
 total_numeros = 160000
 bytes_por_bloque = 1024
 
-
 def calcular_hash(bloque_bytes):
     return hashlib.sha256(bloque_bytes).digest()
-
 
 #Abre el video con OpenCV
 captura = cv2.VideoCapture("videos/video.mov")
 total_frames = int(captura.get(cv2.CAP_PROP_FRAME_COUNT))
 total_pares = total_frames - 1
 
+#Revisa si el video se abrió correctamente
+print(f"se abrió el video? {captura.isOpened()}")
+
+#Saca los demás datos básicos del video
+fps = captura.get(cv2.CAP_PROP_FPS)
+ancho = int(captura.get(cv2.CAP_PROP_FRAME_WIDTH))
+alto = int(captura.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+#Imprime los datos del video
+print(f"Total de frames: {total_frames}")
+print(f"Frames por segundo: {fps}")
+print(f"Resolución: {ancho} x {alto}")
+
 #Cuantos hashes necesita sacar de cada par de frames (cada hash da 32 números)
 bloques_por_par = total_numeros // 32 // total_pares + 1
 
 numeros = []
+pares_usados = 0
 
 #Lee el primer frame
 hay_frame, frame_anterior = captura.read()
@@ -53,6 +65,7 @@ while len(numeros) < total_numeros:
 
     #el frame actual pasa a ser el anterior
     frame_anterior = frame_actual
+    pares_usados += 1
 
 captura.release()
 
@@ -65,4 +78,5 @@ for numero in numeros:
     archivo.write(str(numero) + "\n")
 archivo.close()
 
+print(f"Pares de frames usados: {pares_usados}")
 print("Números generados:", len(numeros))
