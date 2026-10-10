@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import hashlib
 
-TOTAL_NUMEROS = 160000
-BYTES_POR_BLOQUE = 1024
+total_numeros = 160000
+bytes_por_bloque = 1024
 
 
 def calcular_hash(bloque_bytes):
@@ -16,15 +16,15 @@ total_frames = int(captura.get(cv2.CAP_PROP_FRAME_COUNT))
 total_pares = total_frames - 1
 
 #Cuantos hashes necesita sacar de cada par de frames (cada hash da 32 números)
-bloques_por_par = TOTAL_NUMEROS // 32 // total_pares + 1
+bloques_por_par = total_numeros // 32 // total_pares + 1
 
 numeros = []
 
 #Lee el primer frame
 hay_frame, frame_anterior = captura.read()
 
-while len(numeros) < TOTAL_NUMEROS:
-    # Lee el siguiente frame
+while len(numeros) < total_numeros:
+    #Lee el siguiente frame
     hay_frame, frame_actual = captura.read()
     if not hay_frame:
         break
@@ -41,10 +41,10 @@ while len(numeros) < TOTAL_NUMEROS:
     #Separación entre bloques para repartirlos por todo el frame
     paso = len(bytes_ruido) // bloques_por_par
 
-    #Corta el ruido en bloques repartidos y hasheamos cada uno
+    #Corta el ruido en bloques repartidos y hashea cada uno
     for i in range(bloques_por_par):
         inicio = i * paso
-        bloque = bytes_ruido[inicio:inicio + BYTES_POR_BLOQUE]
+        bloque = bytes_ruido[inicio:inicio + bytes_por_bloque]
         resultado = calcular_hash(bloque)
 
         #Cada byte del hash es un número de 0 a 255
@@ -56,8 +56,8 @@ while len(numeros) < TOTAL_NUMEROS:
 
 captura.release()
 
-#por si se pasa, deja exactamente 160,000
-numeros = numeros[:TOTAL_NUMEROS]
+#por si se pasa  deja solo 160,000
+numeros = numeros[:total_numeros]
 
 #guarda los números, uno por línea
 archivo = open("numeros.txt", "w")
