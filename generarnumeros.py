@@ -5,8 +5,10 @@ import hashlib
 total_numeros = 160000
 bytes_por_bloque = 1024
 
+
 def calcular_hash(bloque_bytes):
     return hashlib.sha256(bloque_bytes).digest()
+
 
 #Abre el video con OpenCV
 captura = cv2.VideoCapture("videos/video.mov")
@@ -41,14 +43,14 @@ while len(numeros) < total_numeros:
     if not hay_frame:
         break
 
-    #Diferencia entre frames consecutivos
-    diferencia = cv2.absdiff(frame_actual, frame_anterior)
+    #Resta cada frame con el anterior
+    diferencia = frame_actual - frame_anterior
 
-    #Se queda solo con el último bit de cada valor
-    bits = diferencia & 1
+    #Se queda solo con el último bit de cada valor (el residuo de dividir entre 2)
+    bits = diferencia % 2
 
-    #junta los bits de 8 en 8 para formar bytes
-    bytes_ruido = np.packbits(bits.flatten()).tobytes()
+    #Junta los bits de 8 en 8 para formar bytes
+    bytes_ruido = np.packbits(bits).tobytes()
 
     #Separación entre bloques para repartirlos por todo el frame
     paso = len(bytes_ruido) // bloques_por_par
@@ -59,20 +61,18 @@ while len(numeros) < total_numeros:
         bloque = bytes_ruido[inicio:inicio + bytes_por_bloque]
         resultado = calcular_hash(bloque)
 
-        #Cada byte del hash es un número de 0 a 255
+        #Cada byte del hash es un número de 0 a 255, se guardan hasta llegar a 160,000
         for byte in resultado:
-            numeros.append(byte)
+            if len(numeros) < total_numeros:
+                numeros.append(byte)
 
-    #el frame actual pasa a ser el anterior
+    #El frame actual pasa a ser el anterior
     frame_anterior = frame_actual
     pares_usados += 1
 
 captura.release()
 
-#por si se pasa  deja solo 160,000
-numeros = numeros[:total_numeros]
-
-#guarda los números, uno por línea
+#Guarda los números, uno por línea
 archivo = open("numeros.txt", "w")
 for numero in numeros:
     archivo.write(str(numero) + "\n")
